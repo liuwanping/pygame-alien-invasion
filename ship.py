@@ -25,6 +25,10 @@ class Ship():
 		self.moving_left = False
 		self.moving_up = False
 		self.moving_down = False
+	def center_ship(self):
+		self.center_x = self.screen_rect.centerx
+		self.center_y = self.ai_settings.screen_height-0.5*self.rect.height
+
 
 	def update(self):
 		if self.moving_right and self.rect.right<self.screen_rect.right:
@@ -42,15 +46,4 @@ class Ship():
 	def blitme(self):
 		self.screen.blit(self.image,self.rect)
 
-	def center_ship(self):
-		print("centership")
-		self.rect.centerx = self.screen_rect.centerx
-		self.rect.centery = self.screen_rect.centery
-		self.rect.bottom = self.screen_rect.bottom
-		print(self.screen_rect.centerx)
-		print(self.rect.centerx)
-		print(self.screen_rect.centery)
-		print(self.rect.centery)
-		print(self.screen_rect.bottom)
-		print(self.rect.bottom)
 

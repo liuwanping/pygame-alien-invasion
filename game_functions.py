@@ -48,7 +48,7 @@ def check_events(ai_settings,screen,ship,bullets):
 			check_keyup_events(event,ship)
 
 
-def update_screen(ai_settings,screen,ship,bullets,aliens):
+def update_screen(ai_settings,screen,ship,bullets,aliens,stats,play_button):
 	#redraw the screen every loop		
 	screen.fill(ai_settings.bg_color)
 
@@ -58,17 +58,29 @@ def update_screen(ai_settings,screen,ship,bullets,aliens):
 	ship.blitme()
 	
 	aliens.draw(screen)
-
+	
+	if not stats.game_active:
+		play_button.draw_button()
 	#make the most recently drawn screen visible
 	pygame.display.flip()
 
-def update_bullets(aliens,bullets):
+def update_bullets(ai_settings,screen,ship,aliens,bullets):
 	bullets.update()
 	for bullet in bullets.copy():
 		if bullet.rect.bottom <= 0:
 			bullets.remove(bullet)
 	collisions = pygame.sprite.groupcollide(bullets,aliens,True,True)
+	check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets)
 
+def check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets):
+    """Respond to bullet-alien collisions."""
+    # Remove any bullets and aliens that have collided.
+    collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    
+    if len(aliens) == 0:
+        # Destroy existing bullets, and create new fleet.
+        bullets.empty()
+        create_fleet(ai_settings, screen, ship, aliens)
 
 def get_numbers_alien_x(ai_settings,alien_width):
 	available_space_x = ai_settings.screen_width-2*alien_width
@@ -108,15 +120,18 @@ def change_fleet_direction(ai_settings,aliens):
 	ai_settings.fleet_direction *= -1
 
 def ship_hit(ai_settings,stats,screen,aliens,ship,bullets):
-	stats.ships_left -=1
+	if stats.ships_left>0:
+		stats.ships_left -=1
 
-	aliens.empty()
-	bullets.empty()
+		aliens.empty()
+		bullets.empty()
 	
-	creat_fleet(ai_settings,screen,ship,aliens)
-	ship.center_ship()
+		creat_fleet(ai_settings,screen,ship,aliens)
+		ship.center_ship()
 
-	sleep(1)
+		sleep(1)
+	else:
+		stats.game_active = False
 
 
 def update_aliens(ai_settings,stats,screen,aliens,ship,bullets):
